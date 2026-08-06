@@ -11,7 +11,12 @@ Lines containing [TBC] stay in the source but are stripped from output.
 """
 from __future__ import annotations
 
+import argparse
+import difflib
 import re
+import shutil
+import subprocess
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -173,3 +178,96 @@ def render_docx(cv: CV, path: Path) -> None:
         _render_items(doc, section.items)
 
     doc.save(str(path))
+
+
+def _export_via_word(docx_path: Path, pdf_path: Path) -> bool:
+    try:
+        import win32com.client
+    except ImportError:
+        return False
+    try:
+        word = win32com.client.DispatchEx("Word.Application")
+    except Exception:
+        return False
+    try:
+        word.Visible = False
+        doc = word.Documents.Open(str(docx_path.resolve()))
+        doc.SaveAs2(str(pdf_path.resolve()), FileFormat=17)  # wdFormatPDF
+        doc.Close(False)
+    finally:
+        word.Quit()
+    return True
+
+
+def _export_via_soffice(docx_path: Path, pdf_path: Path) -> bool:
+    soffice = shutil.which("soffice")
+    if not soffice:
+        for candidate in (
+            Path(r"C:\Program Files\LibreOffice\program\soffice.exe"),
+            Path("/usr/bin/soffice"),
+        ):
+            if candidate.exists():
+                soffice = str(candidate)
+                break
+    if not soffice:
+        return False
+    subprocess.run(
+        [soffice, "--headless", "--convert-to", "pdf",
+         "--outdir", str(pdf_path.parent), str(docx_path)],
+        check=True,
+    )
+    produced = pdf_path.parent / (docx_path.stem + ".pdf")
+    if produced != pdf_path:
+        produced.replace(pdf_path)
+    return True
+
+
+def export_pdf(docx_path: Path, pdf_path: Path) -> str:
+    if _export_via_word(docx_path, pdf_path):
+        return "word"
+    if _export_via_soffice(docx_path, pdf_path):
+        return "libreoffice"
+    raise RuntimeError(
+        "No PDF exporter found. Install Microsoft Word (plus `pip install pywin32`) "
+        "or LibreOffice."
+    )
+
+
+def extract_pdf_text(pdf_path: Path):
+    from pypdf import PdfReader
+
+    reader = PdfReader(str(pdf_path))
+    text = "\n".join((page.extract_text() or "") for page in reader.pages)
+    return text, len(reader.pages)
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(description="Build a .docx and .pdf CV from Markdown.")
+    ap.add_argument("markdown", type=Path)
+    ap.add_argument("-o", "--outdir", type=Path, default=None)
+    args = ap.parse_args(argv)
+
+    outdir = args.outdir or args.markdown.parent
+    outdir.mkdir(parents=True, exist_ok=True)
+    docx_path = outdir / (args.markdown.stem + ".docx")
+    pdf_path = outdir / (args.markdown.stem + ".pdf")
+
+    old_text = extract_pdf_text(pdf_path)[0] if pdf_path.exists() else None
+
+    cv = parse_cv(args.markdown.read_text(encoding="utf-8"))
+    render_docx(cv, docx_path)
+    engine = export_pdf(docx_path, pdf_path)
+
+    new_text, pages = extract_pdf_text(pdf_path)
+    if "TBC" in new_text:
+        sys.exit("ERROR: [TBC] content leaked into the PDF")
+    print(f"Built {docx_path.name} and {pdf_path.name} via {engine}; {pages} page(s).")
+    if old_text is not None:
+        diff = list(difflib.unified_diff(
+            old_text.splitlines(), new_text.splitlines(),
+            "previous.pdf", "new.pdf", lineterm=""))
+        print("\n".join(diff) if diff else "No text changes vs previous PDF.")
+
+
+if __name__ == "__main__":
+    main()
