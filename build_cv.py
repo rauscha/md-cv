@@ -81,3 +81,20 @@ def parse_cv(text: str) -> CV:
             else:
                 contact.append(line)
     return CV(name, contact, sections)
+
+
+TOKEN_RE = re.compile(r"(\*\*[^*]+\*\*|\*[^*\s][^*]*\*)")
+
+
+def tokenize_runs(text: str) -> list:
+    out = []
+    for part in TOKEN_RE.split(text):
+        if not part:
+            continue
+        if part.startswith("**") and part.endswith("**"):
+            out.append((part[2:-2], True, False))
+        elif part.startswith("*") and part.endswith("*") and len(part) > 2:
+            out.append((part[1:-1], False, True))
+        else:
+            out.append((part, False, False))
+    return out
