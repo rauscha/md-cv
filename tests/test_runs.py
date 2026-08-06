@@ -21,3 +21,16 @@ def test_bold_and_italic():
 
 def test_lone_asterisk_left_alone():
     assert tokenize_runs("p < 0.05 * significant") == [("p < 0.05 * significant", False, False)]
+
+
+def test_coauthor_asterisks_preserved():
+    assert tokenize_runs("Doe J*, Smith A*, Jones B") == [
+        ("Doe J*, Smith A*, Jones B", False, False)
+    ]
+
+
+def test_italic_adjacent_to_punctuation_still_works():
+    assert tokenize_runs("*J Med*: 1-5") == [
+        ("J Med", False, True),
+        (": 1-5", False, False),
+    ]

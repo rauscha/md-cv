@@ -83,7 +83,7 @@ def parse_cv(text: str) -> CV:
     return CV(name, contact, sections)
 
 
-TOKEN_RE = re.compile(r"(\*\*[^*]+\*\*|\*[^*\s][^*]*\*)")
+TOKEN_RE = re.compile(r"(\*\*[^*]+\*\*|(?<![\w*])\*[^*\s][^*]*\*(?![\w*]))")
 
 
 def tokenize_runs(text: str) -> list:
