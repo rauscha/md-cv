@@ -59,6 +59,10 @@ def parse_cv(text: str) -> CV:
         if not line or "[TBC]" in line:
             continue
         if line.startswith("### "):
+            if section is None:
+                raise ValueError(
+                    f"subsection before any '## SECTION' header: {line!r}"
+                )
             sub = Subsection(line[4:].strip())
             section.items.append(sub)
         elif line.startswith("## "):

@@ -1,6 +1,8 @@
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from build_cv import parse_cv, Entry, Para, Subsection
@@ -61,3 +63,8 @@ def test_tbc_lines_stripped():
     cv = parse_cv(SAMPLE)
     scaffold = cv.sections[2]
     assert scaffold.items == [Para("Real line")]
+
+
+def test_subsection_before_section_raises_clear_error():
+    with pytest.raises(ValueError, match="subsection before any '## SECTION' header"):
+        parse_cv("# Name\n\n### (a) Orphan subsection\n")
