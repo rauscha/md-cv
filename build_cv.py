@@ -27,6 +27,7 @@ FONT_NAME = "Calibri"
 BODY_SIZE = Pt(11)
 NAME_SIZE = Pt(16)
 INDENT = Emu(914400)            # 1" hanging indent + tab stop for dated entries
+SPACE_BEFORE_PARA = Pt(0)
 SPACE_BEFORE_SECTION = Pt(12)
 SPACE_AFTER_SECTION = Pt(4)
 SPACE_BEFORE_SUBSECTION = Pt(6)
@@ -153,7 +154,7 @@ def render_docx(cv: CV, path: Path) -> None:
     normal = doc.styles["Normal"]
     normal.font.name = FONT_NAME
     normal.font.size = BODY_SIZE
-    normal.paragraph_format.space_before = Pt(0)
+    normal.paragraph_format.space_before = SPACE_BEFORE_PARA
     normal.paragraph_format.space_after = SPACE_AFTER_PARA
 
     p = doc.add_paragraph()
