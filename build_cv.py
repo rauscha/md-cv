@@ -13,6 +13,24 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
+
+from docx import Document
+from docx.enum.text import WD_TAB_ALIGNMENT
+from docx.shared import Emu, Pt
+
+# ---------------------------------------------------------------------------
+# STYLE CONSTANTS — the entire visual design lives here. "Light refresh" =
+# conservative academic layout, Calibri, tidy consistent spacing.
+# ---------------------------------------------------------------------------
+FONT_NAME = "Calibri"
+BODY_SIZE = Pt(11)
+NAME_SIZE = Pt(16)
+INDENT = Emu(914400)            # 1" hanging indent + tab stop for dated entries
+SPACE_BEFORE_SECTION = Pt(12)
+SPACE_AFTER_SECTION = Pt(4)
+SPACE_BEFORE_SUBSECTION = Pt(6)
+SPACE_AFTER_PARA = Pt(2)
 
 
 @dataclass
@@ -98,3 +116,59 @@ def tokenize_runs(text: str) -> list:
         else:
             out.append((part, False, False))
     return out
+
+
+def _add_runs(p, text: str):
+    for t, bold, italic in tokenize_runs(text):
+        r = p.add_run(t)
+        r.bold = bold
+        r.italic = italic
+    return p
+
+
+def _render_items(doc, items):
+    for item in items:
+        if isinstance(item, Subsection):
+            p = doc.add_paragraph()
+            p.paragraph_format.space_before = SPACE_BEFORE_SUBSECTION
+            p.add_run(item.title).bold = True
+            if item.items:
+                _render_items(doc, item.items)
+            else:
+                doc.add_paragraph("None")
+        elif isinstance(item, Entry):
+            p = doc.add_paragraph()
+            pf = p.paragraph_format
+            pf.left_indent = INDENT
+            pf.first_line_indent = -INDENT
+            pf.tab_stops.add_tab_stop(INDENT, WD_TAB_ALIGNMENT.LEFT)
+            p.add_run(item.dates + "\t")
+            _add_runs(p, item.text)
+        else:
+            _add_runs(doc.add_paragraph(), item.text)
+
+
+def render_docx(cv: CV, path: Path) -> None:
+    doc = Document()
+    normal = doc.styles["Normal"]
+    normal.font.name = FONT_NAME
+    normal.font.size = BODY_SIZE
+    normal.paragraph_format.space_before = Pt(0)
+    normal.paragraph_format.space_after = SPACE_AFTER_PARA
+
+    p = doc.add_paragraph()
+    r = p.add_run(cv.name)
+    r.bold = True
+    r.font.size = NAME_SIZE
+
+    for line in cv.contact:
+        _add_runs(doc.add_paragraph(), line)
+
+    for section in cv.sections:
+        p = doc.add_paragraph()
+        p.paragraph_format.space_before = SPACE_BEFORE_SECTION
+        p.paragraph_format.space_after = SPACE_AFTER_SECTION
+        p.add_run(section.title).bold = True
+        _render_items(doc, section.items)
+
+    doc.save(str(path))
