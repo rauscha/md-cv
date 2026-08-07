@@ -5,7 +5,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from docx import Document
 
-from build_cv import parse_cv, render_docx, INDENT, SPACE_GAP
+from build_cv import parse_cv, render_docx, BULLET_PREFIX, INDENT, SIDE_MARGIN, SPACE_GAP
 
 MD = """# Jane Doe, MD
 
@@ -71,6 +71,44 @@ def test_name_is_large_bold(tmp_path):
     run = doc.paragraphs[0].runs[0]
     assert run.bold
     assert run.font.size.pt > 12
+
+
+def test_side_margins_are_one_inch(tmp_path):
+    doc = build(tmp_path)
+    section = doc.sections[0]
+    assert section.left_margin == SIDE_MARGIN
+    assert section.right_margin == SIDE_MARGIN
+
+
+def _bullet_doc(tmp_path, md):
+    out = tmp_path / "bullets.docx"
+    render_docx(parse_cv(md), out)
+    return Document(str(out))
+
+
+def test_sub_bullet_shares_the_description_column(tmp_path):
+    doc = _bullet_doc(
+        tmp_path,
+        "## TEACHING ACTIVITIES\nResidency, Some University\n- Designed a curriculum\n",
+    )
+    p = next(p for p in doc.paragraphs if "Designed a curriculum" in p.text)
+    pf = p.paragraph_format
+    assert pf.left_indent == INDENT
+    assert pf.first_line_indent is None
+    assert len(pf.tab_stops) == 0
+    assert p.text == BULLET_PREFIX + "Designed a curriculum"
+
+
+def test_sub_bullet_honors_inline_markup(tmp_path):
+    doc = _bullet_doc(tmp_path, "## TEACHING\n- Ran the **FUNGI** simulation\n")
+    p = next(p for p in doc.paragraphs if "FUNGI" in p.text)
+    assert any(r.bold and r.text == "FUNGI" for r in p.runs)
+
+
+def test_sub_bullet_gap_becomes_space_after(tmp_path):
+    doc = _bullet_doc(tmp_path, "## TEACHING\n- First bullet\n\nNext block\n")
+    p = next(p for p in doc.paragraphs if "First bullet" in p.text)
+    assert p.paragraph_format.space_after == SPACE_GAP
 
 
 def test_gap_renders_empty_paragraph(tmp_path):

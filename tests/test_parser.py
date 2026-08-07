@@ -5,7 +5,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from build_cv import parse_cv, Entry, Para, Subsection
+from build_cv import parse_cv, Bullet, Entry, Para, Subsection
 
 SAMPLE = """# Jane Doe, MD
 
@@ -91,3 +91,31 @@ def test_blank_after_header_creates_no_gap():
     cv = parse_cv("## PUBS\n\n### (a) Papers\n\nDoe J. Paper. 2024\n")
     sub = cv.sections[0].items[0]
     assert sub.items[0].gap is False
+
+
+def test_dash_line_becomes_sub_bullet():
+    cv = parse_cv(
+        "## TEACHING ACTIVITIES\n"
+        "Residency, Some University\n"
+        "- Designed a new ultrasound curriculum\n"
+        "- Annual didactics: Embryology\n"
+    )
+    items = cv.sections[0].items
+    assert items == [
+        Para("Residency, Some University"),
+        Bullet("Designed a new ultrasound curriculum"),
+        Bullet("Annual didactics: Embryology"),
+    ]
+
+
+def test_sub_bullet_inside_subsection():
+    cv = parse_cv("## TEACHING\n\n### (a) Courses\n\n- One course\n")
+    sub = cv.sections[0].items[0]
+    assert sub.items == [Bullet("One course")]
+
+
+def test_sub_bullet_takes_gap_from_blank_line():
+    cv = parse_cv("## TEACHING\n\n- First\n\nNext block\n")
+    first, second = cv.sections[0].items
+    assert first == Bullet("First", gap=True)
+    assert second == Para("Next block")

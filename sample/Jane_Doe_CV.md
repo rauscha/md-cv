@@ -30,6 +30,15 @@ jane.doe@generalhospital.org | (555) 123-4567
 2019 | Fellow Research Award, General Hospital Department of OB/GYN
 [TBC] confirm exact title and date once the 2024 mentorship award certificate arrives
 
+## TEACHING ACTIVITIES
+
+Obstetrics & Gynecology Residency, General Hospital
+- Designed and implemented the resident curriculum in obstetric ultrasound
+- Annual didactics: Hypertensive Disorders of Pregnancy; Fetal Growth Restriction
+
+Maternal-Fetal Medicine Fellowship, General Hospital
+- Annual didactics: Ultrasound Basics; Doppler Interpretation
+
 ## PUBLICATIONS
 
 ### (a) Peer-reviewed Publications
