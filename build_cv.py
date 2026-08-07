@@ -270,7 +270,7 @@ def _export_via_word(docx_path: Path, pdf_path: Path) -> bool:
     return True
 
 
-def _export_via_soffice(docx_path: Path, pdf_path: Path) -> bool:
+def _export_via_soffice(docx_path: Path, pdf_path: Path, profile_dir: Path | None = None) -> bool:
     soffice = shutil.which("soffice")
     if not soffice:
         for candidate in (
@@ -283,12 +283,16 @@ def _export_via_soffice(docx_path: Path, pdf_path: Path) -> bool:
                 break
     if not soffice:
         return False
+    cmd = [soffice]
+    if profile_dir is not None:
+        # Per-request profile dir avoids LibreOffice's single-profile lock when
+        # multiple requests run headless soffice concurrently (matches
+        # converter/server.js's `-env:UserInstallation=file://{profile}` flag).
+        cmd.append(f"-env:UserInstallation=file://{profile_dir}")
+    cmd += ["--headless", "--convert-to", "pdf",
+            "--outdir", str(pdf_path.parent), str(docx_path)]
     try:
-        subprocess.run(
-            [soffice, "--headless", "--convert-to", "pdf",
-             "--outdir", str(pdf_path.parent), str(docx_path)],
-            check=True, timeout=120,
-        )
+        subprocess.run(cmd, check=True, timeout=120)
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
         print(f"LibreOffice export failed ({exc})", file=sys.stderr)
         return False
@@ -298,10 +302,10 @@ def _export_via_soffice(docx_path: Path, pdf_path: Path) -> bool:
     return pdf_path.exists()
 
 
-def export_pdf(docx_path: Path, pdf_path: Path) -> str:
+def export_pdf(docx_path: Path, pdf_path: Path, profile_dir: Path | None = None) -> str:
     if _export_via_word(docx_path, pdf_path):
         return "word"
-    if _export_via_soffice(docx_path, pdf_path):
+    if _export_via_soffice(docx_path, pdf_path, profile_dir=profile_dir):
         return "libreoffice"
     raise RuntimeError(
         "No PDF exporter found. Install Microsoft Word (plus `pip install pywin32`) "
@@ -315,6 +319,26 @@ def extract_pdf_text(pdf_path: Path):
     reader = PdfReader(str(pdf_path))
     text = "\n".join((page.extract_text() or "") for page in reader.pages)
     return text, len(reader.pages)
+
+
+class PlaceholderError(Exception):
+    """Raised when the built PDF still contains unresolved placeholder text.
+
+    A normal thing for a colleague filling in the sample CV to trigger — callers
+    (e.g. a web service) should treat this as a client-error condition, not an
+    internal failure.
+    """
+
+
+def check_for_placeholders(text: str) -> None:
+    """Raise PlaceholderError if built output text still contains a placeholder.
+
+    Call this wherever the built PDF's text is available (see `main`, which
+    calls it right after `extract_pdf_text`) so a library caller gets a
+    catchable exception instead of the process exiting under it.
+    """
+    if "TBC" in text:
+        raise PlaceholderError("[TBC] content leaked into the PDF")
 
 
 def main(argv=None):
@@ -335,8 +359,11 @@ def main(argv=None):
     engine = export_pdf(docx_path, pdf_path)
 
     new_text, pages = extract_pdf_text(pdf_path)
-    if "TBC" in new_text:
-        sys.exit("ERROR: [TBC] content leaked into the PDF")
+    try:
+        check_for_placeholders(new_text)
+    except PlaceholderError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        sys.exit(2)
     print(f"Built {docx_path.name} and {pdf_path.name} via {engine}; {pages} page(s).")
     if old_text is not None:
         diff = list(difflib.unified_diff(
