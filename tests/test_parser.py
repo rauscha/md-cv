@@ -68,3 +68,8 @@ def test_tbc_lines_stripped():
 def test_subsection_before_section_raises_clear_error():
     with pytest.raises(ValueError, match="subsection before any '## SECTION' header"):
         parse_cv("# Name\n\n### (a) Orphan subsection\n")
+
+
+def test_current_dated_entry():
+    cv = parse_cv("## MEMBERSHIPS\n\nCurrent | Some Society - Member\n")
+    assert cv.sections[0].items == [Entry("Current", "Some Society - Member")]

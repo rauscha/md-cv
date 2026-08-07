@@ -43,12 +43,13 @@ python build_cv.py sample/Jane_Doe_CV.md -o build/
 | Plain lines right after your name | Contact info (address, email, phone) |
 | `## PUBLICATIONS` | A section heading |
 | `### (a) Peer-reviewed Publications` | A lettered subsection heading inside a section |
-| `2018-2021 \| Assistant Professor, ...` | A dated entry — the part before `\|` must start with a 4-digit year; it's lined up in its own column, followed by the description |
+| `2018-2021 \| Assistant Professor, ...` | A dated entry — the part before `\|` must start with a 4-digit year or the word `Current`; it's lined up in its own column, followed by the description |
+| `Current \| Society Name - Member` | A dated entry for an ongoing membership or role — same column layout as a year-dated entry, for things that don't have an end date |
 | `**Doe J**` | **Bold** text |
 | `*Journal Name*` | *Italic* text |
 | A line containing `[TBC]` | Kept in your source file as a personal reminder, but automatically left out of the Word doc and PDF — nothing marked `[TBC]` ever reaches the printed CV |
 | An empty `###` subsection (heading with nothing under it) | Prints as `None`, matching how empty subsections are conventionally shown on an academic CV |
-| Any other line — no leading `2018-2021 \|` year and no `#` heading markers | A regular flush-left paragraph, not indented like a dated entry (used for contact lines, numbered citations, and notes like `*co-first authors`) |
+| Any other line — no leading `year \|` / `Current \|` and no `#` heading markers | A regular flush-left paragraph, not indented like a dated entry (used for contact lines, numbered citations, and notes like `*co-first authors`) |
 
 ## Updating with an AI assistant
 

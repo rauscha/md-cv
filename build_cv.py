@@ -69,7 +69,7 @@ class CV:
     sections: list
 
 
-DATE_ENTRY_RE = re.compile(r"^(\d{4}[^|]*)\|(.*)$")
+DATE_ENTRY_RE = re.compile(r"^((?:\d{4}|Current)[^|]*)\|(.*)$")
 
 
 def parse_cv(text: str) -> CV:
