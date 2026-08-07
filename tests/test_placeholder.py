@@ -52,7 +52,7 @@ def test_check_for_placeholders_passes_clean_text():
 
 
 @pytest.mark.skipif(not _has_exporter(), reason="no Word or LibreOffice available")
-def test_cli_exits_2_with_message_on_placeholder_leak(tmp_path, capsys):
+def test_cli_exits_3_with_message_on_placeholder_leak(tmp_path, capsys):
     md = tmp_path / "cv.md"
     md.write_text(MD_WITH_LEAK, encoding="utf-8")
     try:
@@ -60,8 +60,22 @@ def test_cli_exits_2_with_message_on_placeholder_leak(tmp_path, capsys):
             build_cv.main([str(md)])
     except RuntimeError as exc:
         pytest.skip(f"no usable PDF exporter at runtime: {exc}")
-    assert exc_info.value.code == 2
+    # 3, not 2: argparse's own usage-error convention owns exit code 2 (see
+    # test_cli_exits_2_on_argparse_usage_error below) -- reusing it here would make
+    # the two failure modes indistinguishable to a caller that maps exit codes.
+    assert exc_info.value.code == 3
     assert "ERROR: [TBC] content leaked into the PDF" in capsys.readouterr().err
+
+
+def test_cli_exits_2_on_argparse_usage_error(capsys):
+    # Pins the other half of the exit-code contract: a genuine CLI usage error (here,
+    # the required `markdown` positional is missing) still exits 2 via argparse's own
+    # ArgumentParser.error() -> self.exit(2, ...), and is therefore distinguishable
+    # from the placeholder-leak condition above, which now exits 3.
+    with pytest.raises(SystemExit) as exc_info:
+        build_cv.main([])
+    assert exc_info.value.code == 2
+    assert "usage" in capsys.readouterr().err.lower()
 
 
 @pytest.mark.skipif(not _has_exporter(), reason="no Word or LibreOffice available")

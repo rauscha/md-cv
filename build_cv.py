@@ -371,7 +371,11 @@ def main(argv=None):
         check_for_placeholders(new_text)
     except PlaceholderError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
-        sys.exit(2)
+        # Exit 3, not 2: argparse's own ArgumentParser.error() calls self.exit(2, ...)
+        # for CLI usage errors, so 2 is already spoken for. Reusing it here would make
+        # a malformed invocation indistinguishable from a leaked placeholder to any
+        # caller (e.g. converter/server.js) that maps exit codes to HTTP responses.
+        sys.exit(3)
     print(f"Built {docx_path.name} and {pdf_path.name} via {engine}; {pages} page(s).")
     if old_text is not None:
         diff = list(difflib.unified_diff(
