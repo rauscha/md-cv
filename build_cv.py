@@ -345,6 +345,14 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description="Build a .docx and .pdf CV from Markdown.")
     ap.add_argument("markdown", type=Path)
     ap.add_argument("-o", "--outdir", type=Path, default=None)
+    ap.add_argument(
+        "--profile-dir", type=Path, default=None,
+        help="Per-request LibreOffice profile dir, passed through to the soffice "
+             "exporter as -env:UserInstallation (see _export_via_soffice). Lets a "
+             "server give each concurrent request its own profile instead of sharing "
+             "the default one, which headless soffice corrupts under concurrency. "
+             "Default: none (unchanged CLI/Word behaviour).",
+    )
     args = ap.parse_args(argv)
 
     outdir = args.outdir or args.markdown.parent
@@ -356,7 +364,7 @@ def main(argv=None):
 
     cv = parse_cv(args.markdown.read_text(encoding="utf-8"))
     render_docx(cv, docx_path)
-    engine = export_pdf(docx_path, pdf_path)
+    engine = export_pdf(docx_path, pdf_path, profile_dir=args.profile_dir)
 
     new_text, pages = extract_pdf_text(pdf_path)
     try:

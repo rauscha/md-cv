@@ -80,3 +80,48 @@ def test_export_pdf_forwards_profile_dir_to_soffice(tmp_path, monkeypatch):
 
     assert engine == "libreoffice"
     assert recorded["profile_dir"] == profile
+
+
+def test_main_forwards_profile_dir_flag_to_export_pdf(tmp_path, monkeypatch):
+    """`--profile-dir` on the CLI must reach export_pdf(), so a server invoking
+    build_cv.py as a subprocess can give each request its own LibreOffice profile
+    (see converter/server.js's -env:UserInstallation usage upstream)."""
+    md = tmp_path / "cv.md"
+    md.write_text("# Jane Doe\n\nEmail: jane@example.edu\n", encoding="utf-8")
+
+    recorded = {}
+
+    def fake_export_pdf(docx_path, pdf_path, profile_dir=None):
+        recorded["profile_dir"] = profile_dir
+        pdf_path.write_bytes(b"%PDF-fake")
+        return "libreoffice"
+
+    monkeypatch.setattr(build_cv, "export_pdf", fake_export_pdf)
+    monkeypatch.setattr(build_cv, "extract_pdf_text", lambda path: ("Jane Doe", 1))
+
+    profile = tmp_path / "lo-profile"
+    build_cv.main([str(md), "--profile-dir", str(profile)])
+
+    assert recorded["profile_dir"] == profile
+
+
+def test_main_no_profile_dir_flag_defaults_to_none(tmp_path, monkeypatch):
+    """Omitting `--profile-dir` must leave the owner's existing Windows/Word CLI
+    invocation unchanged: export_pdf() gets profile_dir=None, same as before this
+    flag existed."""
+    md = tmp_path / "cv.md"
+    md.write_text("# Jane Doe\n\nEmail: jane@example.edu\n", encoding="utf-8")
+
+    recorded = {}
+
+    def fake_export_pdf(docx_path, pdf_path, profile_dir=None):
+        recorded["profile_dir"] = profile_dir
+        pdf_path.write_bytes(b"%PDF-fake")
+        return "word"
+
+    monkeypatch.setattr(build_cv, "export_pdf", fake_export_pdf)
+    monkeypatch.setattr(build_cv, "extract_pdf_text", lambda path: ("Jane Doe", 1))
+
+    build_cv.main([str(md)])
+
+    assert recorded["profile_dir"] is None
