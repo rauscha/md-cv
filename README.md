@@ -35,6 +35,16 @@ The `.docx` and `.pdf` land in the same folder as your Markdown file. To put the
 python build_cv.py sample/Jane_Doe_CV.md -o build/
 ```
 
+**Windows shortcut:** drag your `.md` file onto `build.bat` — no command line needed.
+
+**On a Mac:** install [LibreOffice](https://www.libreoffice.org) (free — it handles the PDF export, since Word for Mac can't be driven by the script), then in Terminal, from this folder:
+
+```
+python3 build_cv.py My_CV.md
+```
+
+One note for Mac builds: if Microsoft Office isn't installed, LibreOffice substitutes a look-alike font for Calibri, so line breaks may shift slightly versus a Windows/Word build. The content is identical either way.
+
 ## Format reference
 
 | What you write | What you get |

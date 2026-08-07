@@ -275,6 +275,7 @@ def _export_via_soffice(docx_path: Path, pdf_path: Path) -> bool:
     if not soffice:
         for candidate in (
             Path(r"C:\Program Files\LibreOffice\program\soffice.exe"),
+            Path("/Applications/LibreOffice.app/Contents/MacOS/soffice"),
             Path("/usr/bin/soffice"),
         ):
             if candidate.exists():
