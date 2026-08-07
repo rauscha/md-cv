@@ -192,10 +192,17 @@ def _export_via_word(docx_path: Path, pdf_path: Path) -> bool:
     try:
         word.Visible = False
         doc = word.Documents.Open(str(docx_path.resolve()))
-        doc.SaveAs2(str(pdf_path.resolve()), FileFormat=17)  # wdFormatPDF
-        doc.Close(False)
+        try:
+            doc.SaveAs2(str(pdf_path.resolve()), FileFormat=17)  # wdFormatPDF
+        finally:
+            doc.Close(False)
+            del doc  # release proxy while Word is still alive (avoids RPC warnings)
+    except Exception as exc:
+        print(f"Word export failed ({exc}); trying LibreOffice...", file=sys.stderr)
+        return False
     finally:
         word.Quit()
+        del word
     return True
 
 
@@ -211,15 +218,19 @@ def _export_via_soffice(docx_path: Path, pdf_path: Path) -> bool:
                 break
     if not soffice:
         return False
-    subprocess.run(
-        [soffice, "--headless", "--convert-to", "pdf",
-         "--outdir", str(pdf_path.parent), str(docx_path)],
-        check=True,
-    )
+    try:
+        subprocess.run(
+            [soffice, "--headless", "--convert-to", "pdf",
+             "--outdir", str(pdf_path.parent), str(docx_path)],
+            check=True, timeout=120,
+        )
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
+        print(f"LibreOffice export failed ({exc})", file=sys.stderr)
+        return False
     produced = pdf_path.parent / (docx_path.stem + ".pdf")
     if produced != pdf_path:
         produced.replace(pdf_path)
-    return True
+    return pdf_path.exists()
 
 
 def export_pdf(docx_path: Path, pdf_path: Path) -> str:
