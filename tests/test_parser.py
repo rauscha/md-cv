@@ -73,3 +73,21 @@ def test_subsection_before_section_raises_clear_error():
 def test_current_dated_entry():
     cv = parse_cv("## MEMBERSHIPS\n\nCurrent | Some Society - Member\n")
     assert cv.sections[0].items == [Entry("Current", "Some Society - Member")]
+
+
+def test_blank_line_between_items_sets_gap():
+    cv = parse_cv("## PUBS\n\nDoe J. Paper one. 2024\n\nDoe J. Paper two. 2023\n")
+    first, second = cv.sections[0].items
+    assert first.gap is True
+    assert second.gap is False
+
+
+def test_no_gap_when_items_adjacent():
+    cv = parse_cv("## JOBS\n\n2020-2021 | A\n2021-2022 | B\n")
+    assert [e.gap for e in cv.sections[0].items] == [False, False]
+
+
+def test_blank_after_header_creates_no_gap():
+    cv = parse_cv("## PUBS\n\n### (a) Papers\n\nDoe J. Paper. 2024\n")
+    sub = cv.sections[0].items[0]
+    assert sub.items[0].gap is False

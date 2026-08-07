@@ -49,6 +49,7 @@ python build_cv.py sample/Jane_Doe_CV.md -o build/
 | `*Journal Name*` | *Italic* text |
 | A line containing `[TBC]` | Kept in your source file as a personal reminder, but automatically left out of the Word doc and PDF — nothing marked `[TBC]` ever reaches the printed CV |
 | An empty `###` subsection (heading with nothing under it) | Prints as `None`, matching how empty subsections are conventionally shown on an academic CV |
+| A blank line between two entries | Extra vertical space between them in the output (use it between publication citations, for example, so a run of papers doesn't read as one wall of text) |
 | Any other line — no leading `year \|` / `Current \|` and no `#` heading markers | A regular flush-left paragraph, not indented like a dated entry (used for contact lines, numbered citations, and notes like `*co-first authors`) |
 
 ## Updating with an AI assistant

@@ -36,8 +36,11 @@ jane.doe@generalhospital.org | (555) 123-4567
 
 2023 | **Doe J**, Roe R*, Patel S*. Outcomes of early aspirin initiation for preeclampsia prevention in high-risk pregnancies. *Journal of Maternal-Fetal Medicine*. 41(3):210-218.
 *co-first authors
+
 2022 | **Doe J**, Nguyen T. Cervical length screening and preterm birth risk stratification: a retrospective cohort study. *American Journal of Obstetrics and Gynecology*. 226(4):512-520.
+
 2021 | Chen L, **Doe J**, Ahmed F. Management of gestational diabetes in twin pregnancies. *Obstetrics & Gynecology*. 137(6):1044-1051.
+
 2020 | **Doe J**, Ramirez K, Okafor N. Fetal growth restriction: a comparison of surveillance protocols. *Ultrasound in Obstetrics & Gynecology*. 55(2):201-209.
 
 ### (b) Book Chapters

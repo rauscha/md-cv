@@ -71,3 +71,12 @@ def test_name_is_large_bold(tmp_path):
     run = doc.paragraphs[0].runs[0]
     assert run.bold
     assert run.font.size.pt > 12
+
+
+def test_gap_renders_empty_paragraph(tmp_path):
+    out = tmp_path / "gap.docx"
+    render_docx(parse_cv("## PUBS\n\nDoe J. One. 2024\n\nDoe J. Two. 2023\n"), out)
+    t = [p.text for p in Document(str(out)).paragraphs]
+    i = t.index("Doe J. One. 2024")
+    assert t[i + 1] == ""
+    assert t[i + 2] == "Doe J. Two. 2023"

@@ -43,11 +43,13 @@ SPACE_AFTER_PARA = Pt(2)
 class Entry:
     dates: str
     text: str
+    gap: bool = False
 
 
 @dataclass
 class Para:
     text: str
+    gap: bool = False
 
 
 @dataclass
@@ -78,9 +80,13 @@ def parse_cv(text: str) -> CV:
     sections: list[Section] = []
     section: Section | None = None
     sub: Subsection | None = None
+    saw_blank = False
     for raw in text.splitlines():
         line = raw.strip()
-        if not line or "[TBC]" in line:
+        if not line:
+            saw_blank = True
+            continue
+        if "[TBC]" in line:
             continue
         if line.startswith("### "):
             if section is None:
@@ -89,21 +95,31 @@ def parse_cv(text: str) -> CV:
                 )
             sub = Subsection(line[4:].strip())
             section.items.append(sub)
+            saw_blank = False
         elif line.startswith("## "):
             section = Section(line[3:].strip())
             sub = None
             sections.append(section)
+            saw_blank = False
         elif line.startswith("# "):
             name = line[2:].strip()
+            saw_blank = False
         else:
             m = DATE_ENTRY_RE.match(line)
             item = Entry(m.group(1).strip(), m.group(2).strip()) if m else Para(line)
             if sub is not None:
-                sub.items.append(item)
+                target = sub.items
             elif section is not None:
-                section.items.append(item)
+                target = section.items
+            else:
+                target = None
+            if target is not None:
+                if saw_blank and target:
+                    target[-1].gap = True
+                target.append(item)
             else:
                 contact.append(line)
+            saw_blank = False
     return CV(name, contact, sections)
 
 
@@ -150,8 +166,12 @@ def _render_items(doc, items):
             pf.tab_stops.add_tab_stop(INDENT, WD_TAB_ALIGNMENT.LEFT)
             p.add_run(item.dates + "\t")
             _add_runs(p, item.text)
+            if item.gap:
+                doc.add_paragraph("")
         else:
             _add_runs(doc.add_paragraph(), item.text)
+            if item.gap:
+                doc.add_paragraph("")
 
 
 def render_docx(cv: CV, path: Path) -> None:
