@@ -30,6 +30,11 @@ jane.doe@generalhospital.org | (555) 123-4567
 2019 | Fellow Research Award, General Hospital Department of OB/GYN
 [TBC] confirm exact title and date once the 2024 mentorship award certificate arrives
 
+## PROFESSIONAL MEMBERSHIPS
+
+Current | Society for Maternal-Fetal Medicine - Member
+2015-2019 | American College of Obstetricians and Gynecologists - Junior Fellow
+
 ## TEACHING ACTIVITIES
 
 Obstetrics & Gynecology Residency, General Hospital

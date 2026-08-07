@@ -48,7 +48,8 @@ python build_cv.py sample/Jane_Doe_CV.md -o build/
 | `- Designed a new curriculum` | A sub-bullet — the whole line is indented to the 1.15-inch description column, so a run of them lines up underneath the plain line that introduces them (used for the activities listed under a teaching or clinical heading) |
 | `**Doe J**` | **Bold** text |
 | `*Journal Name*` | *Italic* text |
-| A line containing `[TBC]` | Kept in your source file as a personal reminder, but automatically left out of the Word doc and PDF — nothing marked `[TBC]` ever reaches the printed CV |
+| A plain line containing `[TBC]` | Kept in your source file as a personal reminder, but automatically left out of the Word doc and PDF — nothing marked `[TBC]` ever reaches the printed CV |
+| `[TBC]` on a `##` or `###` heading, e.g. `## GRANTS & RESEARCH SUPPORT [TBC]` | Marks the whole section (or subsection) as a scaffold — a safe place to accumulate real, dated entries under it while you're still gathering material. The heading and everything under it (even non-`[TBC]` lines) are entirely left out of the Word doc and PDF until you remove `[TBC]` from the heading, at which point it prints normally |
 | An empty `###` subsection (heading with nothing under it) | Prints as `None`, matching how empty subsections are conventionally shown on an academic CV |
 | A blank line between two entries | Extra vertical space between them in the output (use it between publication citations, for example, so a run of papers doesn't read as one wall of text) |
 | Any other line — no leading `year \|` / `Current \|` and no `#` heading markers | A regular flush-left paragraph, not indented like a dated entry (used for contact lines, numbered citations, and notes like `*co-first authors`) |

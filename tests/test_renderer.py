@@ -111,9 +111,17 @@ def test_sub_bullet_gap_becomes_space_after(tmp_path):
     assert p.paragraph_format.space_after == SPACE_GAP
 
 
-def test_gap_renders_empty_paragraph(tmp_path):
+def test_gap_becomes_space_after_on_plain_paragraph(tmp_path):
     out = tmp_path / "gap.docx"
     render_docx(parse_cv("## PUBS\n\nDoe J. One. 2024\n\nDoe J. Two. 2023\n"), out)
     doc = Document(str(out))
     gapped = next(p for p in doc.paragraphs if p.text == "Doe J. One. 2024")
     assert gapped.paragraph_format.space_after == SPACE_GAP
+
+
+def test_scaffold_section_not_rendered(tmp_path):
+    out = tmp_path / "s.docx"
+    render_docx(parse_cv("## REAL\n\n2020 | A\n\n## GRANTS [TBC]\n\n2021 | Grant\n"), out)
+    t = " ".join(p.text for p in Document(str(out)).paragraphs)
+    assert "GRANTS" not in t and "Grant" not in t
+    assert "2020" in t

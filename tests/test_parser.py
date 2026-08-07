@@ -119,3 +119,12 @@ def test_sub_bullet_takes_gap_from_blank_line():
     first, second = cv.sections[0].items
     assert first == Bullet("First", gap=True)
     assert second == Para("Next block")
+
+
+def test_tbc_header_creates_scaffold_section():
+    cv = parse_cv("## REAL\n\n2020 | A\n\n## GRANTS [TBC]\n\n2021 | Real grant entry\n")
+    real, grants = cv.sections
+    assert real.scaffold is False
+    assert grants.scaffold is True
+    assert grants.items == [Entry("2021", "Real grant entry")]
+    assert real.items == [Entry("2020", "A")]  # nothing misfiled
