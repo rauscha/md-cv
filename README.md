@@ -48,7 +48,8 @@ python build_cv.py sample/Jane_Doe_CV.md -o build/
 | `*Journal Name*` | *Italic* text |
 | A line containing `[TBC]` | Kept in your source file as a personal reminder, but automatically left out of the Word doc and PDF — nothing marked `[TBC]` ever reaches the printed CV |
 | An empty `###` subsection (heading with nothing under it) | Prints as `None`, matching how empty subsections are conventionally shown on an academic CV |
+| Any other line — no leading `2018-2021 \|` year and no `#` heading markers | A regular flush-left paragraph, not indented like a dated entry (used for contact lines, numbered citations, and notes like `*co-first authors`) |
 
 ## Updating with an AI assistant
 
-Open your `.md` file, tell Claude (or ChatGPT) what changed in plain English — for example, "add this paper, it was just accepted: \[paste citation]" — and let it edit the file for you. Then rebuild with `python build_cv.py your_cv.md` and check the diff the tool prints against your previous PDF, so you can confirm only the change you asked for actually changed.
+Open your `.md` file in your editor of choice — it's just plain text, so nothing special is needed. Then tell Claude (or ChatGPT) what changed in plain English — for example, "add this paper, it was just accepted: \[paste citation]" — and let it edit the file for you. Rebuild with the one command, `python build_cv.py your_cv.md`, to regenerate the `.docx` and `.pdf`. Finally, review the diff the tool prints against your previous PDF, so you can confirm only the change you asked for actually changed before you send the new CV anywhere.
