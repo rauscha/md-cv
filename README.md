@@ -1,0 +1,54 @@
+# md-cv
+
+## What this is
+
+Keep your CV as a plain-text Markdown file; one command produces a formatted Word doc and PDF. Updating it stops being a Word-formatting chore — when a paper comes out, you just paste the citation into the file (or hand it to Claude or ChatGPT and say "add this paper"), run the build, and you're done. Because the source is plain text, it also plays nicely with git: every change to your CV is a readable diff, so you can see exactly what changed between versions, and nothing ever depends on the fragile internal formatting of a `.docx` file.
+
+## See the sample
+
+`sample/Jane_Doe_CV.md` is a complete, fictional example CV (Dr. Jane Doe, a made-up OB/GYN academic at a made-up "General Hospital") that exercises every section the tool supports — appointments, training, licensure, honors, publications with lettered subsections, invited talks. The built outputs are committed alongside it so you can see the result without installing anything:
+
+- [`sample/Jane_Doe_CV.md`](sample/Jane_Doe_CV.md) — the source
+- [`sample/Jane_Doe_CV.docx`](sample/Jane_Doe_CV.docx) — the built Word document
+- [`sample/Jane_Doe_CV.pdf`](sample/Jane_Doe_CV.pdf) — the built PDF
+
+## Setup
+
+1. Install **Python 3.11 or newer**, if you don't already have it.
+2. From the project folder, install the dependencies:
+
+   ```
+   pip install -r requirements.txt
+   ```
+
+3. PDF export needs either **Microsoft Word** (on Windows) or **LibreOffice** (any operating system) installed. Word is used automatically if it's present; the tool falls back to LibreOffice otherwise.
+
+## Build
+
+```
+python build_cv.py sample/Jane_Doe_CV.md
+```
+
+The `.docx` and `.pdf` land in the same folder as your Markdown file. To put them somewhere else, add `-o`:
+
+```
+python build_cv.py sample/Jane_Doe_CV.md -o build/
+```
+
+## Format reference
+
+| What you write | What you get |
+|---|---|
+| `# Jane Doe, MD` (first line) | Your name, printed large and bold at the top |
+| Plain lines right after your name | Contact info (address, email, phone) |
+| `## PUBLICATIONS` | A section heading |
+| `### (a) Peer-reviewed Publications` | A lettered subsection heading inside a section |
+| `2018-2021 \| Assistant Professor, ...` | A dated entry — the part before `\|` must start with a 4-digit year; it's lined up in its own column, followed by the description |
+| `**Doe J**` | **Bold** text |
+| `*Journal Name*` | *Italic* text |
+| A line containing `[TBC]` | Kept in your source file as a personal reminder, but automatically left out of the Word doc and PDF — nothing marked `[TBC]` ever reaches the printed CV |
+| An empty `###` subsection (heading with nothing under it) | Prints as `None`, matching how empty subsections are conventionally shown on an academic CV |
+
+## Updating with an AI assistant
+
+Open your `.md` file, tell Claude (or ChatGPT) what changed in plain English — for example, "add this paper, it was just accepted: \[paste citation]" — and let it edit the file for you. Then rebuild with `python build_cv.py your_cv.md` and check the diff the tool prints against your previous PDF, so you can confirm only the change you asked for actually changed.
