@@ -12,6 +12,11 @@ Keep your CV as a plain-text Markdown file; one command produces a formatted Wor
 - [`sample/Jane_Doe_CV.docx`](sample/Jane_Doe_CV.docx) — the built Word document
 - [`sample/Jane_Doe_CV.pdf`](sample/Jane_Doe_CV.pdf) — the built PDF
 
+> **No-install option:** the same converter runs as a web drop-box at
+> **cv.mfm.media** — verify with the access code (ask Andrew), drop your `.md`
+> file, download the Word doc and PDF. Everything below is only needed if you
+> want to build locally instead.
+
 ## Setup
 
 1. Install **Python 3.11 or newer**, if you don't already have it.
