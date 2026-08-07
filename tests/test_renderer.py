@@ -5,7 +5,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from docx import Document
 
-from build_cv import parse_cv, render_docx, INDENT
+from build_cv import parse_cv, render_docx, INDENT, SPACE_GAP
 
 MD = """# Jane Doe, MD
 
@@ -76,7 +76,6 @@ def test_name_is_large_bold(tmp_path):
 def test_gap_renders_empty_paragraph(tmp_path):
     out = tmp_path / "gap.docx"
     render_docx(parse_cv("## PUBS\n\nDoe J. One. 2024\n\nDoe J. Two. 2023\n"), out)
-    t = [p.text for p in Document(str(out)).paragraphs]
-    i = t.index("Doe J. One. 2024")
-    assert t[i + 1] == ""
-    assert t[i + 2] == "Doe J. Two. 2023"
+    doc = Document(str(out))
+    gapped = next(p for p in doc.paragraphs if p.text == "Doe J. One. 2024")
+    assert gapped.paragraph_format.space_after == SPACE_GAP

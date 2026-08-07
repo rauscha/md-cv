@@ -37,6 +37,7 @@ SPACE_BEFORE_SECTION = Pt(12)
 SPACE_AFTER_SECTION = Pt(4)
 SPACE_BEFORE_SUBSECTION = Pt(6)
 SPACE_AFTER_PARA = Pt(2)
+SPACE_GAP = Pt(8)           # extra space_after on a paragraph followed by a blank line in the source
 
 
 @dataclass
@@ -167,11 +168,12 @@ def _render_items(doc, items):
             p.add_run(item.dates + "\t")
             _add_runs(p, item.text)
             if item.gap:
-                doc.add_paragraph("")
+                pf.space_after = SPACE_GAP
         else:
-            _add_runs(doc.add_paragraph(), item.text)
+            p = doc.add_paragraph()
+            _add_runs(p, item.text)
             if item.gap:
-                doc.add_paragraph("")
+                p.paragraph_format.space_after = SPACE_GAP
 
 
 def render_docx(cv: CV, path: Path) -> None:
