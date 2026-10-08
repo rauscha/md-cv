@@ -38,11 +38,21 @@ Neither is installed here — `apt install libreoffice` for local PDF export.
 - `build.bat` — Windows-only launcher; irrelevant on Linux.
 
 ## Conventions & gotchas
+- Layout follows the UChicago BSD/COAP CV template's *structure* (title block,
+  labeled contact, caps headings, italic-underlined subsections, 1" date column,
+  numbered citations, Name/Month Year/Page X of Y footer). Font is ours
+  (Calibri), not the template's Arial — Andrew's call, 2026-10-08.
 - Markdown grammar is fixed and documented in the README's format table —
-  `# Name`, `## SECTION`, `### (a) Subsection`, `YYYY[-YYYY]|text` /
-  `Current|text` dated entries, `- ` sub-bullets, `**bold**`/`*italic*`,
-  `[TBC]` to suppress a line or a whole heading's content. Don't loosen it
-  without checking `tests/`.
+  `# Name`, `Label: value` contact lines, `Dated: Place`, `## SECTION`,
+  `### (a) Subsection`, `YYYY[-YYYY]|text` / `Current|text` dated entries,
+  `Title | dates` heading lines, `1. ` numbered items, `- ` sub-bullets,
+  indented `  - ` glyph bullets, `---` page break, `**bold**`/`*italic*`/
+  `***both***`/`<u>underline</u>`, `[TBC]` to suppress a line or a whole
+  heading's content. Don't loosen it without checking `tests/`.
+- `--date YYYY-MM-DD` pins the CV date (default today); rebuilding on another
+  day changes the dated line and footer, which shows up in the PDF diff.
+- `private/` is gitignored: real people's CVs (e.g. the Romero COAP example
+  used to build the template) live there, never in this public repo.
 - `main()` exits 3, not argparse's 2, when a `[TBC]` placeholder leaks into
   the rendered PDF (2 is reserved for CLI usage errors).
 - Style constants (fonts, sizes, indents) live at the top of `build_cv.py`.

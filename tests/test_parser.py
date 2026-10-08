@@ -5,7 +5,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from build_cv import parse_cv, Bullet, Entry, Para, Subsection
+from build_cv import parse_cv, Bullet, Entry, Heading, Nested, Numbered, PageBreak, Para, Subsection
 
 SAMPLE = """# Jane Doe, MD
 
@@ -54,7 +54,7 @@ def test_subsections_capture_following_items():
     pubs = cv.sections[1]
     sub_a, sub_b = pubs.items
     assert isinstance(sub_a, Subsection) and sub_a.title == "(a) Peer-reviewed Publications"
-    assert sub_a.items[0] == Para("1. Doe J. A paper. *Journal*: 1-2. 2024")
+    assert sub_a.items[0] == Numbered("1", "Doe J. A paper. *Journal*: 1-2. 2024")
     assert sub_a.items[1] == Entry("2020-2024", "This starts with a year and has a pipe")
     assert isinstance(sub_b, Subsection) and sub_b.items == []
 
@@ -128,3 +128,27 @@ def test_tbc_header_creates_scaffold_section():
     assert grants.scaffold is True
     assert grants.items == [Entry("2021", "Real grant entry")]
     assert real.items == [Entry("2020", "A")]  # nothing misfiled
+
+
+def test_text_then_dates_is_a_heading_line():
+    cv = parse_cv("## FUNDING\n\nNIH K12 Scholar | 2009-2016\n- Role: PI\nOld grant | 2007-\n")
+    assert cv.sections[0].items == [
+        Heading("NIH K12 Scholar", "2009-2016"), Bullet("Role: PI"), Heading("Old grant", "2007-"),
+    ]
+
+
+def test_pipe_with_trailing_prose_is_not_a_heading():
+    cv = parse_cv("## X\n\nFoo | 2021 something else\n")
+    assert cv.sections[0].items == [Para("Foo | 2021 something else")]
+
+
+def test_indented_dash_is_nested_item():
+    cv = parse_cv("## CLINICAL\n\n2007- | Practice:\n  - Focus one\n- Plain bullet\n")
+    assert cv.sections[0].items == [
+        Entry("2007-", "Practice:"), Nested("Focus one"), Bullet("Plain bullet"),
+    ]
+
+
+def test_rule_is_page_break():
+    cv = parse_cv("## A\n\nText\n\n---\n## B\n")
+    assert cv.sections[0].items == [Para("Text", gap=True), PageBreak()]

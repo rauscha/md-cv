@@ -6,7 +6,7 @@ Keep your CV as a plain-text Markdown file; one command produces a formatted Wor
 
 ## See the sample
 
-`sample/Jane_Doe_CV.md` is a complete, fictional example CV (Dr. Jane Doe, a made-up OB/GYN academic at a made-up "General Hospital") that exercises every section the tool supports — appointments, training, licensure, honors, publications with lettered subsections, invited talks. The built outputs are committed alongside it so you can see the result without installing anything:
+`sample/Jane_Doe_CV.md` is a complete, fictional example CV (Dr. Jane Doe, a made-up OB/GYN academic at a made-up "General Hospital") that exercises every section the tool supports — appointments, training, licensure, honors, clinical activities, funding, publications with lettered subsections, invited talks, and a statement section on its own page. The built outputs are committed alongside it so you can see the result without installing anything:
 
 - [`sample/Jane_Doe_CV.md`](sample/Jane_Doe_CV.md) — the source
 - [`sample/Jane_Doe_CV.docx`](sample/Jane_Doe_CV.docx) — the built Word document
@@ -52,22 +52,30 @@ One note for Mac builds: if Microsoft Office isn't installed, LibreOffice substi
 
 ## Format reference
 
+The layout follows the University of Chicago BSD CV format (the COAP template that circulates among senior faculty): a centered **CURRICULUM VITAE** title over your name, a labeled contact block, bold all-caps section headings, italic-underlined lettered subsections, dates in a one-inch left column, numbered citations, and a footer reading *Name — Month Year — Page X of Y* on every page.
+
 | What you write | What you get |
 |---|---|
-| `# Jane Doe, MD` (first line) | Your name, printed large and bold at the top |
-| Plain lines right after your name | Contact info (address, email, phone) |
-| `## PUBLICATIONS` | A section heading |
-| `### (a) Peer-reviewed Publications` | A lettered subsection heading inside a section |
-| `2018-2021 \| Assistant Professor, ...` | A dated entry — the part before `\|` must start with a 4-digit year or the word `Current`; the date sits at the left margin and the description starts in its own column 1.15 inches in, with any wrapped lines hanging in that same column |
-| `Current \| Society Name - Member` | A dated entry for an ongoing membership or role — same column layout as a year-dated entry, for things that don't have an end date |
-| `- Designed a new curriculum` | A sub-bullet — the whole line is indented to the 1.15-inch description column, so a run of them lines up underneath the plain line that introduces them (used for the activities listed under a teaching or clinical heading) |
-| `**Doe J**` | **Bold** text |
-| `*Journal Name*` | *Italic* text |
+| `# Jane Doe, MD` (first line) | **CURRICULUM VITAE** and your name, centered and bold at the top; your name also goes in the footer |
+| `Dated: Springfield` (right after your name) | A right-aligned "Springfield, 10/8/26" line under your name, stamped with the build date (override with `--date YYYY-MM-DD`). The footer's month and year use the same date |
+| `Address: General Hospital` | A contact line with the label in its own column and the value one inch in |
+| Unlabeled lines after a labeled one | Continue that value (the rest of your address), lined up under it |
+| `## PUBLICATIONS` | A section heading, bold and printed in capitals however you type it |
+| `### (a) Peer-reviewed Publications` | A lettered subsection heading, italic and underlined |
+| `2018-2021 \| Assistant Professor, ...` | A dated entry — the part before `\|` must start with a 4-digit year or the word `Current`; the date sits at the left margin and the description starts one inch in, with any wrapped lines hanging in that same column |
+| `Current \| Society Name - Member` | A dated entry for an ongoing membership or role |
+| `Grant name \| 2022-2024` | A heading line (text first, dates last): bold text with the dates right-aligned, as for a grant in **FUNDING**. Sub-bullets under it line up with it |
+| `1. Doe J. Title. ***Journal***. 2024` | A numbered item with the number hanging to the left of the wrapped text, as for publications and abstracts |
+| `- Designed a new curriculum` | A sub-bullet — indented to the text column of the line that introduces it (one inch in under a dated entry or a plain line, level with the title under a grant heading). No bullet glyph |
+| `  - Hypertensive disorders` (indented) | A nested item with a bullet glyph, one step in from the description column (a clinical focus list under a dated entry) |
+| `---` on its own line | Starts the next heading on a new page. The template begins each statement section (scholarly activity, clinical, education, citizenship) on a fresh page |
+| `**Doe J**` / `*Journal*` / `***Journal***` | **Bold** / *italic* / ***bold italic*** text |
+| `<u>Doe J</u>` | Underlined text, the template's convention for your own name in author lists |
 | A plain line containing `[TBC]` | Kept in your source file as a personal reminder, but automatically left out of the Word doc and PDF — nothing marked `[TBC]` ever reaches the printed CV |
 | `[TBC]` on a `##` or `###` heading, e.g. `## GRANTS & RESEARCH SUPPORT [TBC]` | Marks the whole section (or subsection) as a scaffold — a safe place to accumulate real, dated entries under it while you're still gathering material. The heading and everything under it (even non-`[TBC]` lines) are entirely left out of the Word doc and PDF until you remove `[TBC]` from the heading, at which point it prints normally |
 | An empty `###` subsection (heading with nothing under it) | Prints as `None`, matching how empty subsections are conventionally shown on an academic CV |
 | A blank line between two entries | Extra vertical space between them in the output (use it between publication citations, for example, so a run of papers doesn't read as one wall of text) |
-| Any other line — no leading `year \|` / `Current \|` and no `#` heading markers | A regular flush-left paragraph, not indented like a dated entry (used for contact lines, numbered citations, and notes like `*co-first authors`) |
+| Any other line | A regular flush-left paragraph (used for sub-group labels like `(a) Didactic`, notes like `*co-first authors`, and statement text) |
 
 ## Updating with an AI assistant
 
